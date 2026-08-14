@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
+
+const usersFilePath = path.join(import.meta.dirname, 'users.json');
 
 dotenv.config();
 const app = express();
@@ -54,7 +58,17 @@ app.post('/api/data', (req, res) => {
         message: 'Datos json recibidos',
         data
     })
-})
+});
+
+app.get('/users', (req, res) => {
+    fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+        if(err) {
+            return res.status(500).json({error: 'Error con conexión de datos'});
+        }
+        const users = JSON.parse(data);
+        res.json(users);
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Servidor: http://localhost:${PORT}`);
