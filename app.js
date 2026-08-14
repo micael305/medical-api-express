@@ -1,3 +1,4 @@
+import { error } from 'console';
 import dotenv from 'dotenv';
 import express from 'express';
 import fs from 'fs';
@@ -67,6 +68,40 @@ app.get('/users', (req, res) => {
         }
         const users = JSON.parse(data);
         res.json(users);
+    });
+});
+
+app.post('/users', (req, res) => {
+    const newUser = req.body;
+    const { name, email } = newUser;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'El campo "nombre" es obligatorio y debe ser texto válido' });
+    }
+
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+        return res.status(400).json({ error: 'El campo "email" es obligatorio' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'El formato del email no es válido' });
+    }
+
+    fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+        if(err){
+            return res.status(500).json({error: 'Error con conexión de datos'});
+        }
+
+    const users = JSON.parse(data);
+
+    users.push(newUser);
+    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+        if(err){
+            return res.status(500).json({error: 'Error al guardar usuario'});
+        }
+        res.status(201).json(newUser);
+        });
     });
 });
 
