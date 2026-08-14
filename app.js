@@ -42,7 +42,7 @@ app.post('/form', (req, res) => {
     res.json({
         message: 'Datos recibidos',
         data: {
-            name, 
+            name,
             email
         }
     })
@@ -52,7 +52,7 @@ app.post('/api/data', (req, res) => {
     const data = req.body;
 
     if (!data || Object.keys(data).length === 0) {
-        return res.status(400).json({error: 'No se recibieron datos'});
+        return res.status(400).json({ error: 'No se recibieron datos' });
     }
 
     res.status(201).json({
@@ -63,8 +63,8 @@ app.post('/api/data', (req, res) => {
 
 app.get('/users', (req, res) => {
     fs.readFile(usersFilePath, 'utf-8', (err, data) => {
-        if(err) {
-            return res.status(500).json({error: 'Error con conexión de datos'});
+        if (err) {
+            return res.status(500).json({ error: 'Error con conexión de datos' });
         }
         const users = JSON.parse(data);
         res.json(users);
@@ -89,18 +89,58 @@ app.post('/users', (req, res) => {
     }
 
     fs.readFile(usersFilePath, 'utf-8', (err, data) => {
-        if(err){
-            return res.status(500).json({error: 'Error con conexión de datos'});
+        if (err) {
+            return res.status(500).json({ error: 'Error con conexión de datos' });
         }
 
-    const users = JSON.parse(data);
+        const users = JSON.parse(data);
 
-    users.push(newUser);
-    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
-        if(err){
-            return res.status(500).json({error: 'Error al guardar usuario'});
+        users.push(newUser);
+        fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Error al guardar usuario' });
+            }
+            res.status(201).json(newUser);
+        });
+    });
+});
+
+app.put('/users/:id', (req, res) => {
+    const userID = parseInt(req.params.id);
+    const updateUser = req.body;
+
+    if (!name && !email) {
+        return res.status(400).json({
+            error: "Debe enviar al menos uno de los campos: name o email",
+        });
+    }
+
+    if (isNaN(userID)) {
+        return res.status(400).json({ error: 'El ID proporcionado debe ser un número válido' });
+    }
+
+    fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error con conexión de datos' });
         }
-        res.status(201).json(newUser);
+        let users = JSON.parse(data);
+        const userIndex = users.findIndex(user => user.id === userID);
+
+        if (userIndex === -1) {
+            return res.status(404).json({ error: `Usuario con ID ${userID} no encontrado` });
+        }
+
+        users[userIndex] = {
+            ...users[userIndex],
+            ...updateUser,
+            id: userID
+        };
+
+        fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Error al actualizar usuario' });
+            }
+            res.json(updateUser);
         });
     });
 });
