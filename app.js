@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import bodyParser from 'body-parser';
 
 dotenv.config();
 const app = express();
@@ -30,6 +29,31 @@ app.get('/search', (req, res) => {
         <p>Termino: ${terms}</p>
         <p>Categoria: ${category}</p>
         `);
+});
+
+app.post('/form', (req, res) => {
+    const name = req.body.nombre || 'Anónimo';
+    const email = req.body.email || 'No especificado';
+    res.json({
+        message: 'Datos recibidos',
+        data: {
+            name, 
+            email
+        }
+    })
+});
+
+app.post('/api/data', (req, res) => {
+    const data = req.body;
+
+    if (!data || Object.keys(data).length === 0) {
+        return res.status(400).json({error: 'No se recibieron datos'});
+    }
+
+    res.status(201).json({
+        message: 'Datos json recibidos',
+        data
+    })
 })
 
 app.listen(PORT, () => {
