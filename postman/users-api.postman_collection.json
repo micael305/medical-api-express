@@ -52,6 +52,35 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Update User",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "    {\r\n        \"name\": \"Peter Parker\",\r\n        \"email\": \"johndoe2019@gmail.com\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/users/3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users",
+            "3"
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }
