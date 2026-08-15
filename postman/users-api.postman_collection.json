@@ -101,6 +101,14 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Error Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
     }
   ]
 }
