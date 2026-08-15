@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { validateUser } from './utils/validation.js';
 
 const usersFilePath = path.join(import.meta.dirname, 'users.json');
 
@@ -75,25 +76,17 @@ app.post('/users', (req, res) => {
     const newUser = req.body;
     const { name, email } = newUser;
 
-    if (!name || typeof name !== 'string' || name.trim() === '') {
-        return res.status(400).json({ error: 'El campo "nombre" es obligatorio y debe ser texto válido' });
-    }
-
-    if (!email || typeof email !== 'string' || email.trim() === '') {
-        return res.status(400).json({ error: 'El campo "email" es obligatorio' });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'El formato del email no es válido' });
-    }
-
     fs.readFile(usersFilePath, 'utf-8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error con conexión de datos' });
         }
 
         const users = JSON.parse(data);
+        const validation = validateUser(newUser, users);
+
+        if (!validation.isValid) {
+            return res.status(400).json({ error: validation.errors });
+        }
 
         users.push(newUser);
         fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
@@ -106,41 +99,40 @@ app.post('/users', (req, res) => {
 });
 
 app.put('/users/:id', (req, res) => {
-    const userID = parseInt(req.params.id);
-    const updateUser = req.body;
-
-    if (!name && !email) {
-        return res.status(400).json({
-            error: "Debe enviar al menos uno de los campos: name o email",
-        });
-    }
-
-    if (isNaN(userID)) {
-        return res.status(400).json({ error: 'El ID proporcionado debe ser un número válido' });
-    }
+    const userID = parseInt(req.params.id, 10);
+    const updatedUser = req.body;
 
     fs.readFile(usersFilePath, 'utf-8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error con conexión de datos' });
         }
-        let users = JSON.parse(data);
+
+        const users = JSON.parse(data);
         const userIndex = users.findIndex(user => user.id === userID);
 
         if (userIndex === -1) {
             return res.status(404).json({ error: `Usuario con ID ${userID} no encontrado` });
         }
 
-        users[userIndex] = {
+        const userToValidate = {
             ...users[userIndex],
-            ...updateUser,
+            ...updatedUser,
             id: userID
         };
+
+        const validation = validateUser(userToValidate, users.filter(user => user.id !== userID), 'put');
+
+        if (!validation.isValid) {
+            return res.status(400).json({ error: validation.errors });
+        }
+
+        users[userIndex] = userToValidate;
 
         fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
             if (err) {
                 return res.status(500).json({ error: 'Error al actualizar usuario' });
             }
-            res.json(updateUser);
+            res.json(users[userIndex]);
         });
     });
 });
