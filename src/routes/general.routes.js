@@ -46,4 +46,9 @@ router.post('/api/data', (req, res) => {
     });
 });
 
+//para simular error en desarrollo
+router.get('/error', (req, res, next) => {
+    next(new Error('Error intencional'));
+});
+
 export default router;
