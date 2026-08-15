@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "51dca744-8706-41af-978e-b158d2ec920b",
+    "_postman_id": "d142a3af-6700-4454-be99-457a2f34f606",
     "name": "API Users",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "33671141"
@@ -79,6 +79,14 @@
             "3"
           ]
         }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User",
+      "request": {
+        "method": "GET",
+        "header": []
       },
       "response": []
     }
