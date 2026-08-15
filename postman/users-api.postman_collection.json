@@ -85,6 +85,26 @@
     {
       "name": "Delete User",
       "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/users/6",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users",
+            "6"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Error Request",
+      "request": {
         "method": "GET",
         "header": []
       },
