@@ -1,9 +1,17 @@
+import 'dotenv/config';
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../../generated/prisma/client.ts';
 import { validateUser } from '../utils/validation.js';
 
 const router = Router();
+const prisma = new PrismaClient({
+    adapter: new PrismaPg({
+        connectionString: process.env.DATABASE_URL
+    })
+});
 const usersFilePath = path.join(process.cwd(), 'users.json');
 
 router.get('/', (req, res) => {
@@ -67,6 +75,16 @@ router.delete('/:id', (req, res) => {
             res.status(204).send();
         });
     });
+});
+
+router.get('/db-users', async (req, res) => {
+    try {
+        const users = await prisma.user.findMany();
+        res.json(users);
+    } catch (error) {
+        console.error('DB_ERROR:', error);
+        res.status(500).json({ error: error.message || 'Error al comunicarse con la base de datos' });
+    }
 });
 
 export default router;
