@@ -1,9 +1,15 @@
+import 'dotenv/config';
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { validateUser } from '../utils/validation.js';
 
 const router = Router();
+const prisma = new PrismaClient({
+    adapter: new PrismaPg({
+        connectionString: process.env.DATABASE_URL
+    })
+});
 const usersFilePath = path.join(process.cwd(), 'users.json');
 
 router.get('/', (req, res) => {
