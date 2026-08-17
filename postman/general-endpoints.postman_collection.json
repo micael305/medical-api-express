@@ -74,6 +74,38 @@
 				}
 			},
 			"response": []
-		}
-	]
+		},
+    {
+      "name": "Protected Route",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Barer asdasod.aosdosa.adssfd",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "    {\r\n        \"id\": 3,\r\n        \"name\": \"Peter Doe\",\r\n        \"email\": \"johndoe2019@gmail.com\"\r\n    }"
+        },
+        "url": {
+          "raw": "http://localhost:3000/protected-route",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "protected-route"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }

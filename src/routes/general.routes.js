@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import authenticateToken from '../middlewares/auth.js';
 
 const router = Router();
 const PORT = process.env.PORT || 3000;
@@ -49,6 +50,11 @@ router.post('/api/data', (req, res) => {
 //para simular error en desarrollo
 router.get('/error', (req, res, next) => {
     next(new Error('Error intencional'));
+});
+
+//probar auth
+router.get('/protected-route', authenticateToken, (req, res) => {
+    res.send('Esta es una ruta protegida.');
 });
 
 export default router;
