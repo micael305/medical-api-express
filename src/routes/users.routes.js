@@ -3,8 +3,9 @@ import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../../generated/prisma/client.ts';
+import { PrismaClient, Role } from '../../generated/prisma/client.ts';
 import { validateUser } from '../utils/validation.js';
+import bcrypt from 'bcryptjs';
 
 const router = Router();
 const prisma = new PrismaClient({
@@ -85,6 +86,22 @@ router.get('/db-users', async (req, res) => {
         console.error('DB_ERROR:', error);
         res.status(500).json({ error: error.message || 'Error al comunicarse con la base de datos' });
     }
+});
+
+
+router.post('/register', async(req, res) => {
+    const {email, password, name} = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+        data: {
+            email,
+            password: hashedPassword,
+            name,
+            role: 'USER'
+        }
+    });
+    res.status(201).json({ message: 'User Registered Succefully'});
 });
 
 export default router;
