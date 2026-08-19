@@ -6,6 +6,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Role } from '../../generated/prisma/client.ts';
 import { validateUser } from '../utils/validation.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 const prisma = new PrismaClient({
@@ -102,6 +103,25 @@ router.post('/register', async(req, res) => {
         }
     });
     res.status(201).json({ message: 'User Registered Succefully'});
+});
+
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await prisma.user.findUnique({ where: {email}});
+
+    if (!user) return res.status(400).json({ error: 'Invalid email or password' });
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if(!validPassword) return res.status(400).json({ error: 'Invalid email or password' });
+
+    const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' }
+    );
+
+    res.json({token});
+
 });
 
 export default router;
