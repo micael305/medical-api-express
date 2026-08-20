@@ -7,7 +7,8 @@ const LoggerMiddleware = (req, res, next) => {
 
     res.on('finish', () => {
         const duration = Date.now() - start;
-        console.log(`[${timeStamp}] Response: ${res.statusCode} - ${duration}ms`);
+        const responseTimeStamp = new Date().toISOString();
+        console.log(`[${responseTimeStamp}] Response: ${res.statusCode} - ${duration}ms`);
     });
 
     next();
