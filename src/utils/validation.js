@@ -1,52 +1,64 @@
-// Validación de correo electrónico mediante Regex
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export class ValidationError extends Error {
+  constructor(errors) {
+    super('Validation failed');
+    this.name = 'ValidationError';
+    this.statusCode = 400;
+    this.errors = errors;
+  }
 }
 
-// Validación de nombre (mínimo 3 caracteres)
-function isValidName(name) {
-  return typeof name === 'string' && name.length >= 3;
-}
-
-// Validación de ID (numérico y único)
-function isNumericId(id) {
-  return !isNaN(Number(id));
-}
-
-function isUniqueId(id, users) {
-  return !users.some(user => user.id === id);
-}
-
-// Función principal de validación
-export function validateUser(user, users = [], method = 'post') {
+function validateFields(fields) {
   const errors = [];
 
-  if (!user || typeof user !== 'object') {
-    return {
-      isValid: false,
-      errors: ['Los datos del usuario no son válidos']
-    };
-  }
-
-  if (!isValidName(user.name)) {
-    errors.push('El nombre debe tener al menos tres caracteres');
-  }
-
-  if (!isValidEmail(user.email)) {
+  if (typeof fields.email !== 'string' || !emailRegex.test(fields.email.trim())) {
     errors.push('El correo electrónico no es válido');
   }
 
-  if (!isNumericId(user.id)) {
-    errors.push('El ID debe de ser numérico y único');
+  return errors;
+}
+
+export function validateRegistration({ email, password, name } = {}) {
+  const errors = validateFields({ email });
+
+  if (typeof password !== 'string' || password.length < 8) {
+    errors.push('La contraseña debe tener al menos ocho caracteres');
   }
 
-  if (method === 'post' && !isUniqueId(user.id, users)) {
-    errors.push('El ID debe de ser único');
+  if (typeof name !== 'string' || name.trim().length < 3) {
+    errors.push('El nombre debe tener al menos tres caracteres');
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  if (errors.length > 0) {
+    throw new ValidationError(errors);
+  }
+}
+
+export function validateLogin({ email, password } = {}) {
+  const errors = validateFields({ email });
+
+  if (typeof password !== 'string' || password.length === 0) {
+    errors.push('La contraseña es obligatoria');
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError(errors);
+  }
+}
+
+export function validateUserUpdate({ email, name } = {}) {
+  const errors = [];
+
+  if (name !== undefined && (typeof name !== 'string' || name.trim().length < 3)) {
+    errors.push('El nombre debe tener al menos tres caracteres');
+  }
+
+  if (email !== undefined) {
+    errors.push(...validateFields({ email }));
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError(errors);
+  }
 }

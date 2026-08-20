@@ -1,4 +1,5 @@
 import * as usersService from '../services/usersService.js';
+import { validateUserUpdate } from '../utils/validation.js';
 
 const getUsers = async (req, res, next) => {
     try{
@@ -22,6 +23,7 @@ const getUser = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id, 10);
+        validateUserUpdate(req.body);
         const updatedUser = await usersService.updatedUser(id, req.body);
         res.json(updatedUser);
     } catch (error) {
